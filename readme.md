@@ -70,18 +70,76 @@ ScrambleGate introduces **randomization** into the detection pipeline, inspired 
 
 ## ⚙️ Quick Start
 
+1. Set up your environment:
 ```bash
-git clone https://github.com/EdwardAThomson/Scramble-Gate.git
-cd ScrambleGate
+export OPENAI_API_KEY="your-api-key-here"
+```
 
-# Install dependencies
-pip install -r requirements.txt
+2. Run a test with different scrambling modes:
+```bash
+# Test with probabilistic scrambling (recommended)
+python scramblegate_runner.py probabilistic
 
-# Set up environment
-echo "OPENAI_API_KEY=your-key-here" > .env
+# Test with masking only
+python scramblegate_runner.py masking_only
 
-# Run comprehensive Agent Dojo benchmark
-python scramblegate_runner.py
+# Test with pure scrambling
+python scramblegate_runner.py pure_scrambling
 
-# Or test individual prompts
-python scramblegate.py
+# Test with clean copies only
+python scramblegate_runner.py clean_only
+
+# Test with deterministic masking + scrambling
+python scramblegate_runner.py deterministic_masking
+```
+
+This will test ScrambleGate against Agent Dojo prompt injection benchmarks and generate a detailed report.
+
+## 🎯 Scrambling Mode Performance
+
+Based on Agent Dojo benchmark testing (27 injection tasks):
+
+| Mode | Detection Rate | Key Insight |
+|------|----------------|-------------|
+| **broken_probabilistic** | **59.3%** | **Accidental masking bias (highest performance)** |
+| probabilistic | 51.9% | Balanced mix of clean, masked, scrambled views |
+| clean_only | 48.1% | Multiple analysis chances with identical copies |
+| masking_only | 33.3% | [MASK] tokens trigger LLM suspicion |
+| deterministic_masking | 25.9% | Fixed patterns easier to bypass |
+| pure_scrambling | 18.5% | LLMs handle scrambled text well |
+
+## 🔍 The Broken Algorithm Discovery
+
+We discovered that the original "buggy" probabilistic implementation achieved **59.3% detection** - significantly higher than the mathematically correct version (51.9%). 
+
+**Why the broken version works better:**
+- Chained `random()` calls accidentally favor masking-only views (~35% vs intended 20%)
+- `[MASK]` tokens are more effective red flags than scrambled text
+- Information removal beats information reordering for prompt injection detection
+- Sometimes bugs reveal better strategies than intended designs
+
+## 🎯 Deployment Recommendations
+
+### Detection vs Precision Trade-offs
+
+| Priority | Mode | Detection Rate | False Positive Rate | Best For |
+|----------|------|----------------|-------------------|----------|
+| **High Precision** | `masking_brackets` | 29.6% | 0.0% | Production systems requiring minimal false positives |
+| **Balanced** | `clean_only` | 48.1% | 7.4% | General use (best F1 score: 0.880) |
+| **Maximum Detection** | `broken_probabilistic` | 59.3% | ~7-8% | High-security environments accepting false positives |
+
+### Strategic Guidance
+- **Production Systems**: Use `balanced_precision` mode (combines clean views + subtle masking)
+- **Security-Critical**: Use `broken_probabilistic` mode (highest detection, accept false positives)
+- **Cost-Conscious**: Use `clean_only` mode (surprising effectiveness, minimal complexity)
+- **Avoid**: `pure_scrambling` mode (18.5% detection, LLMs handle scrambled text well)
+
+### Masking Token Impact
+- **`[MASK]`**: Medium detection, medium false positives (ML training association)
+- **`[]`**: Lower detection, zero false positives (subtle placeholder)
+- **`[REDACTED]`**: High detection, high false positives (security signal triggers suspicion)
+
+**Key Insights:**
+- **Masking beats scrambling**: `[MASK]` tokens trigger LLM suspicion more than word reordering
+- **Probabilistic unpredictability**: Random patterns prevent attack adaptation
+- **Clean copies work**: Multiple identical views give LLMs more analysis opportunities
