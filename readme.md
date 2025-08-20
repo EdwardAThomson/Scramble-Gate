@@ -45,9 +45,43 @@ ScrambleGate introduces **randomization** into the detection pipeline, inspired 
 
 ---
 
-## ⚙️ Usage
+## 📁 Project Structure
+
+### Core Scripts
+
+- **`scramblegate.py`** - Main ScrambleGate defense implementation
+  - Core `gate_prompt()` function with windowing, scrambling, and detection
+  - Baseline LLM detection for comparison (`baseline_llm_check()`)
+  - Configurable policies and detection thresholds
+
+- **`scramblegate_runner.py`** - Agent Dojo integration and benchmarking
+  - Tests ScrambleGate against real prompt injection attacks
+  - Integrates with Agent Dojo test suites (banking, slack, travel, workspace)
+  - Generates comprehensive markdown reports with baseline comparisons
+  - Saves detailed audit trails including scrambled views
+
+- **`test_scramblegate.py`** - Unit tests for core functionality
+  - Tests gate logic, scrambling functions, and detection mechanisms
+
+### Dependencies
+
+- **`requirements.txt`** - Python package dependencies
+- **`.env`** - Environment variables (create with your `OPENAI_API_KEY`)
+
+## ⚙️ Quick Start
 
 ```bash
-git clone https://github.com/YOURNAME/scramblegate.git
-cd scramblegate
-python gate.py
+git clone https://github.com/EdwardAThomson/Scramble-Gate.git
+cd ScrambleGate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Set up environment
+echo "OPENAI_API_KEY=your-key-here" > .env
+
+# Run comprehensive Agent Dojo benchmark
+python scramblegate_runner.py
+
+# Or test individual prompts
+python scramblegate.py
