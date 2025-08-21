@@ -1,6 +1,6 @@
 # ScrambleGate
 
-**ScrambleGate** is an experimental technique for defending against **prompt injection attacks** in LLM applications.
+**ScrambleGate** is an experimental technique for defending against **prompt injection attacks** in LLM applications. Experimental: do not use in production. This technique doesn't work.
 
 It acts as a **stochastic pre-execution gate**: before a prompt is sent to the main model, ScrambleGate randomly samples and scrambles parts of the input, then runs them through heuristic and ML-based detectors.  
 
