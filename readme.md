@@ -4,9 +4,12 @@
 
 ⚠️ **Experimental: do not use in production. This technique doesn't work.** ⚠️
 
-It acts as a **stochastic pre-execution gate**: before a prompt is sent to the main model, ScrambleGate randomly samples and scrambles parts of the input, then sends them to an LLM for safety classification.
+## Overview
+This tools acts as a **stochastic pre-execution gate**: before a prompt is sent to the main model, ScrambleGate randomly samples and scrambles parts of the input, then sends them to an LLM for safety classification.
 
 If malicious intent is detected in any scrambled view, execution is blocked.
+
+An additional idea that's tried here is the (stochastic) masking of inputs, which performed better than scrambling, but it introduced false positives (the LLM became more suspicious).
 
 ---
 
